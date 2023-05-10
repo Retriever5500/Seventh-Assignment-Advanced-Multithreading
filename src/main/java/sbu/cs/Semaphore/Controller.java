@@ -18,11 +18,11 @@ public class Controller {
      */
 
     public static void main(String[] args) {
-        Operator operator1 = new Operator("operator1");
-        Operator operator2 = new Operator("operator2");
-        Operator operator3 = new Operator("operator3");
-        Operator operator4 = new Operator("operator4");
-        Operator operator5 = new Operator("operator5");
+        Operator operator1 = new Operator("operator1", Resource.sem);
+        Operator operator2 = new Operator("operator2", Resource.sem);
+        Operator operator3 = new Operator("operator3", Resource.sem);
+        Operator operator4 = new Operator("operator4", Resource.sem);
+        Operator operator5 = new Operator("operator5", Resource.sem);
 
         operator1.start();
         operator2.start();
