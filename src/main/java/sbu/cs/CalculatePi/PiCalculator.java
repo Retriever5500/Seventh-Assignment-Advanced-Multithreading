@@ -69,34 +69,40 @@ public class PiCalculator {
 
     public String calculate(int floatingPoint)
     {
-        int maxThreads = 2;
-        int maxValuePerThread = 1000 / maxThreads;
+        int maxThreads = 7;
+        int terms = 1000;
+        int maxValuePerThread = terms / maxThreads;
         int start = 0;
         int end = maxValuePerThread;
         BigDecimal result = new BigDecimal(0);
         ExecutorService pool = Executors.newFixedThreadPool(maxThreads);
-        ArrayList<CalculateTask> threads = new ArrayList<CalculateTask>();
-        for(int i = 0; i < maxThreads; i++) {
+        ArrayList<CalculateTask> tasks = new ArrayList<CalculateTask>();
+        for(int i = 0; i < maxThreads-1; i++) {
             CalculateTask task = new CalculateTask(start, end);
-            threads.add(task);
+            tasks.add(task);
             pool.execute(task);
-            start = start + end;
+            start = end;
             end = end + maxValuePerThread;
         }
+
+        // Last thread does all the left overs
+        end = terms;
+        CalculateTask lastTask = new CalculateTask(start, end);
+        tasks.add(lastTask);
+        pool.execute(lastTask);
+
+        // Finishing all tasks
 
         pool.shutdown();
 
         try {
-            while (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
-                continue;    
-            }
+            pool.awaitTermination(10, TimeUnit.SECONDS);
         } catch(InterruptedException e) {
             e.printStackTrace();
         }
 
-        for(CalculateTask thread: threads) {
-            result = result.add(thread.getResult());
-            System.out.println(thread.getResult());
+        for(CalculateTask task: tasks) {
+            result = result.add(task.getResult());
         }
 
         result = result.multiply(new BigDecimal(4));
@@ -104,10 +110,5 @@ public class PiCalculator {
         result = result.setScale(floatingPoint, RoundingMode.DOWN);
 
         return result.toString();
-    }
-
-    public static void main(String[] args) {
-        PiCalculator lol = new PiCalculator();
-        System.out.println(lol.calculate(1000));
     }
 }
