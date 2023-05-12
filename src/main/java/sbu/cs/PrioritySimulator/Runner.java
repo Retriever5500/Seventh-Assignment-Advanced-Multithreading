@@ -2,6 +2,7 @@ package sbu.cs.PrioritySimulator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class Runner {
 
@@ -33,31 +34,35 @@ public class Runner {
     public void run(int blackCount, int blueCount, int whiteCount) throws InterruptedException {
         List<ColorThread> colorThreads = new ArrayList<>();
 
-        // TODO
+        CountDownLatch blackLatch = new CountDownLatch(blackCount);
 
         for (int i = 0; i < blackCount; i++) {
-            BlackThread blackThread = new BlackThread();
+            BlackThread blackThread = new BlackThread(blackLatch);
             colorThreads.add(blackThread);
             blackThread.start();
         }
 
-        // TODO
+        blackLatch.await();
+
+        CountDownLatch blueLatch = new CountDownLatch(blueCount);
 
         for (int i = 0; i < blueCount; i++) {
-            BlueThread blueThread = new BlueThread();
+            BlueThread blueThread = new BlueThread(blueLatch);
             colorThreads.add(blueThread);
             blueThread.start();
         }
 
-        // TODO
+        blueLatch.await();
+
+        CountDownLatch whiteLatch = new CountDownLatch(whiteCount);
 
         for (int i = 0; i < whiteCount; i++) {
-            WhiteThread whiteThread = new WhiteThread();
+            WhiteThread whiteThread = new WhiteThread(whiteLatch);
             colorThreads.add(whiteThread);
             whiteThread.start();
         }
 
-        // TODO
+        whiteLatch.await();
     }
 
     synchronized public static void addToList(Message message) {
@@ -68,7 +73,11 @@ public class Runner {
         return messages;
     }
 
-    public static void main(String[] args) {
-        // Use the main function to test the code yourself
+    public static void main(String[] args) throws InterruptedException {
+        Runner runner = new Runner();
+        int blackCount = 13;
+        int blueCount = 8;
+        int whiteCount = 5;
+        runner.run(blackCount, blueCount, whiteCount);
     }
 }
